@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESP32 Relais-Steuerung</title>
+  <title>ESP32 Relais-Steuerung mit ThingSpeak</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>Relais-Steuerung</h1>
   <div class="button-container">
-    <button id="relayOn" onclick="toggleRelay('on')">Relais EIN</button>
-    <button id="relayOff" onclick="toggleRelay('off')">Relais AUS</button>
+    <button id="relayOn" onclick="toggleRelay(1)">Relais EIN</button>
+    <button id="relayOff" onclick="toggleRelay(0)">Relais AUS</button>
   </div>
   <p>Status: <span id="relayStatus">Unbekannt</span></p>
   <script src="script.js"></script>
