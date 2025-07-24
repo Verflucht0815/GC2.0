@@ -1,27 +1,47 @@
-const esp32IP = "http://192.168.178.29"; // Ersetze mit der IP-Adresse des ESP32
-
-async function toggleRelay(state) {
-  try {
-    const response = await fetch(`${esp32IP}/relay/${state}`);
-    if (response.ok) {
-      updateStatus();
-    } else {
-      alert("Fehler beim Senden der Anfrage");
-    }
-  } catch (error) {
-    alert("Verbindung zum ESP32 fehlgeschlagen");
-  }
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+  background-color: #f0f0f0;
 }
 
-async function updateStatus() {
-  try {
-    const response = await fetch(`${esp32IP}/status`);
-    const status = await response.text();
-    document.getElementById("relayStatus").textContent = status;
-  } catch (error) {
-    document.getElementById("relayStatus").textContent = "Fehler";
-  }
+h1 {
+  color: #333;
 }
 
-// Status beim Laden der Seite aktualisieren
-document.addEventListener("DOMContentLoaded", updateStatus);
+.button-container {
+  margin: 20px 0;
+}
+
+button {
+  padding: 15px 30px;
+  font-size: 18px;
+  margin: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#relayOn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+#relayOff {
+  background-color: #f44336;
+  color: white;
+}
+
+#relayStatus {
+  font-weight: bold;
+  color: #333;
+}
+
+@media (max-width: 600px) {
+  button {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+  }
+}
