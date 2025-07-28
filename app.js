@@ -177,3 +177,198 @@ class GrowlabController {
     
     updateSensorStatus(elementId, value, range) {
         const status = UTILS.getStatus(value, range);
+        const element = this.elements[elementId];
+        
+        // Alle Status-Klassen entfernen
+        element.classList.remove('good', 'warning', 'error');
+        
+        // Neue Status-Klasse hinzufügen
+        element.classList.add(status);
+    }
+    
+    togglePump() {
+        this.config.system.pump_active = !this.config.system.pump_active;
+        
+        if (this.config.system.pump_active) {
+            this.startPump();
+        } else {
+            this.stopPump();
+        }
+        
+        this.updatePumpUI();
+        console.log(`💧 Pumpe ${this.config.system.pump_active ? 'EIN' : 'AUS'}`);
+    }
+    
+    startPump() {
+        this.config.system.pump_active = true;
+        
+        // Automatisches Ausschalten nach eingestellter Dauer
+        if (!this.config.system.auto_mode) {
+            setTimeout(() => {
+                this.stopPump();
+                this.updatePumpUI();
+            }, this.config.irrigation.default_duration * 1000);
+        }
+    }
+    
+    stopPump() {
+        this.config.system.pump_active = false;
+    }
+    
+    toggleAutoMode() {
+        this.config.system.auto_mode = !this.config.system.auto_mode;
+        
+        const autoButton = this.elements.pumpAuto;
+        if (this.config.system.auto_mode) {
+            autoButton.style.background = 'linear-gradient(45deg, #00ff87, #60efff)';
+            autoButton.style.color = '#000';
+            autoButton.querySelector('.btn-text').textContent = 'Auto: EIN';
+        } else {
+            autoButton.style.background = 'linear-gradient(45deg, #667eea, #764ba2)';
+            autoButton.style.color = '#fff';
+            autoButton.querySelector('.btn-text').textContent = 'Auto Modus';
+        }
+        
+        console.log(`🤖 Auto-Modus ${this.config.system.auto_mode ? 'EIN' : 'AUS'}`);
+    }
+    
+    updatePumpUI() {
+        const pumpStatus = this.elements.pumpStatus;
+        const pumpButton = this.elements.pumpToggle;
+        
+        if (this.config.system.pump_active) {
+            pumpStatus.textContent = 'EIN';
+            pumpStatus.classList.add('active');
+            pumpButton.querySelector('.btn-text').textContent = 'Pumpe AUS';
+            pumpButton.style.background = 'linear-gradient(45deg, #ff4757, #ff3742)';
+        } else {
+            pumpStatus.textContent = 'AUS';
+            pumpStatus.classList.remove('active');
+            pumpButton.querySelector('.btn-text').textContent = 'Pumpe EIN';
+            pumpButton.style.background = 'linear-gradient(45deg, #00ff87, #60efff)';
+        }
+    }
+    
+    checkAutoIrrigation() {
+        if (!this.config.system.auto_mode || !this.currentData.soilMoisture) return;
+        
+        // Wenn Bodenfeuchtigkeit unter Schwellwert und Pumpe nicht aktiv
+        if (this.currentData.soilMoisture < this.config.irrigation.soil_threshold && 
+            !this.config.system.pump_active) {
+            
+            console.log(`🤖 Auto-Bewässerung aktiviert: Bodenfeuchtigkeit ${this.currentData.soilMoisture}% < ${this.config.irrigation.soil_threshold}%`);
+            this.startPump();
+            this.updatePumpUI();
+            
+            // Auto-Bewässerung nach Dauer stoppen
+            setTimeout(() => {
+                this.stopPump();
+                this.updatePumpUI();
+                console.log('🤖 Auto-Bewässerung beendet');
+            }, this.config.irrigation.default_duration * 1000);
+        }
+    }
+    
+    updateSystemInfo() {
+        this.elements.wifiStatus.textContent = this.config.wifi.ssid;
+        this.elements.thingspeakStatus.textContent = `Channel ${this.config.thingspeak.channelID}`;
+    }
+    
+    updateTimestamp() {
+        const now = new Date();
+        this.elements.timestamp.textContent = UTILS.formatTime(now);
+    }
+    
+    updateLastUpdateTime() {
+        if (this.config.system.last_update) {
+            this.elements.lastUpdate.textContent = UTILS.formatTime(this.config.system.last_update);
+        }
+    }
+    
+    updateUptime() {
+        this.elements.uptime.textContent = UTILS.getUptime(this.config.system.start_time);
+    }
+    
+    // ThingSpeak Integration (für später)
+    async sendToThingSpeak(data) {
+        const url = `${this.config.thingspeak.baseURL}/update?api_key=${this.config.thingspeak.writeAPIKey}`;
+        const params = new URLSearchParams({
+            [THINGSPEAK_FIELDS.temperature]: data.temperature,
+            [THINGSPEAK_FIELDS.humidity]: data.humidity,
+            [THINGSPEAK_FIELDS.soil_moisture]: data.soilMoisture,
+            [THINGSPEAK_FIELDS.vpd]: data.vpd,
+            [THINGSPEAK_FIELDS.pump_status]: this.config.system.pump_active ? 1 : 0
+        });
+        
+        try {
+            const response = await fetch(`${url}&${params}`);
+            console.log('📡 Daten an ThingSpeak gesendet:', response.status);
+        } catch (error) {
+            console.error('❌ ThingSpeak Fehler:', error);
+        }
+    }
+    
+    async loadFromThingSpeak() {
+        const url = `${this.config.thingspeak.baseURL}/channels/${this.config.thingspeak.channelID}/feeds/last.json?api_key=${this.config.thingspeak.readAPIKey}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            console.log('📥 Daten von ThingSpeak geladen:', data);
+            return data;
+        } catch (error) {
+            console.error('❌ ThingSpeak Laden Fehler:', error);
+            return null;
+        }
+    }
+    
+    // Cleanup beim Verlassen der Seite
+    destroy() {
+        Object.values(this.intervals).forEach(interval => {
+            clearInterval(interval);
+        });
+        console.log('🧹 Growlab Controller beendet');
+    }
+}
+
+// Growlab Controller initialisieren wenn DOM geladen ist
+document.addEventListener('DOMContentLoaded', () => {
+    window.growlab = new GrowlabController();
+});
+
+// Cleanup beim Verlassen der Seite
+window.addEventListener('beforeunload', () => {
+    if (window.growlab) {
+        window.growlab.destroy();
+    }
+});
+
+// Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    if (!window.growlab) return;
+    
+    // Leertaste = Pumpe togglen
+    if (e.code === 'Space' && !e.target.matches('input')) {
+        e.preventDefault();
+        window.growlab.togglePump();
+    }
+    
+    // 'A' = Auto-Modus togglen
+    if (e.code === 'KeyA' && !e.target.matches('input')) {
+        window.growlab.toggleAutoMode();
+    }
+});
+
+// Console Kommandos für Debugging
+window.growlabDebug = {
+    getConfig: () => GROWLAB_CONFIG,
+    getCurrentData: () => window.growlab?.currentData,
+    simulateWater: () => {
+        if (window.growlab) {
+            window.growlab.currentData.soilMoisture = Math.max(0, window.growlab.currentData.soilMoisture - 20);
+            window.growlab.updateSensorUI();
+        }
+    },
+    forcePump: () => window.growlab?.togglePump(),
+    toggleAuto: () => window.growlab?.toggleAutoMode()
+};
