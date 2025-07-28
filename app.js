@@ -145,7 +145,7 @@ class GrowlabController {
         }
         
         console.log('⚠️ ESP32 nicht gefunden - verwende Simulation');
-        console.log('💡 Manuell setzen: growlabDebug.setESP32IP("IP_ADRESSE")');
+        console.log('💡 Manuell setzen: growlabDebug.setESP32IP("http://192.168.178.30/")');
         this.simulateConnection();
     }
     
