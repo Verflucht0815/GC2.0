@@ -5,6 +5,87 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>GrowLab0815</title>
 <link rel="stylesheet" href="https://verflucht0815.github.io/GC2.0/style.css" />
+<style>
+  body {
+    margin: 0;
+    background-color: black;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+  }
+  #intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    animation: fadeInOut 3s forwards;
+  }
+  #intro-screen h1 {
+    font-size: 3rem;
+    color: #3dfc96; /* helleres Smaragdgrün */
+    text-shadow: 0 0 10px white, 0 0 20px white;
+    opacity: 0;
+    animation: showText 3s forwards;
+  }
+  @keyframes showText {
+    0% { opacity: 0; }
+    16.6% { opacity: 1; }
+    83.3% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes fadeInOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+  }
+  #main-menu {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding-top: 60px;
+    background-color: black;
+  }
+  #main-menu.visible {
+    display: flex;
+    animation: menuFadeIn 1s ease forwards;
+  }
+  @keyframes menuFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .menu-button {
+    display: block;
+    background-color: #1e1e1e;
+    color: #3dfc96;
+    border-radius: 12px;
+    padding: 15px 40px;
+    margin: 12px;
+    text-decoration: none;
+    width: 200px;
+    text-align: center;
+    font-size: 1.2rem;
+    box-shadow: 0 0 5px #3dfc96;
+    transition: background 0.3s;
+  }
+  .menu-button:hover {
+    background-color: #2a2a2a;
+  }
+  .header-title {
+    position: absolute;
+    top: 15px;
+    width: 100%;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #3dfc96;
+    opacity: 0.8;
+  }
+</style>
 </head>
 <body>
 
@@ -14,13 +95,20 @@
 </div>
 
 <!-- Hauptmenü -->
-<div id="main-menu" class="hidden">
+<div id="main-menu">
+  <div class="header-title">GrowLab0815</div>
   <a href="klima.html" class="menu-button">Klima</a>
   <a href="bewaesserung.html" class="menu-button">Bewässerung</a>
   <a href="lueftung.html" class="menu-button">Lüftung</a>
   <a href="licht.html" class="menu-button">Licht</a>
 </div>
 
-<script src="https://verflucht0815.github.io/GC2.0/script.js"></script>
+<script>
+  setTimeout(() => {
+    document.getElementById('intro-screen').style.display = 'none';
+    document.getElementById('main-menu').classList.add('visible');
+  }, 3000);
+</script>
+
 </body>
 </html>
