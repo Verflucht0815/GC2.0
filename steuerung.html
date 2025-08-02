@@ -292,44 +292,65 @@
     
     addLog(`Teste Verbindung zu ${espIP}...`, 'info');
     
-    try {
-      // Ersten Test mit einem einfachen GET-Request
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
-      const response = await fetch(`${espIP}/status`, {
-        method: 'GET',
-        signal: controller.signal,
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
+    // Mehrere Verbindungstests durchführen
+    const testEndpoints = ['/test', '/status', '/'];
+    
+    for (const endpoint of testEndpoints) {
+      try {
+        addLog(`Teste ${espIP}${endpoint}...`, 'info');
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+        
+        const response = await fetch(`${espIP}${endpoint}`, {
+          method: 'GET',
+          signal: controller.signal,
+          mode: 'cors',
+          cache: 'no-cache',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          isConnected = true;
+          updateConnectionStatus(true);
+          addLog(`Verbindung erfolgreich über ${endpoint}!`, 'success');
+          
+          // Response Details loggen
+          const contentType = response.headers.get('content-type');
+          addLog(`Response: ${response.status} ${response.statusText}`, 'success');
+          addLog(`Content-Type: ${contentType}`, 'info');
+          
+          if (endpoint === '/status') {
+            updateAllStatus();
+          }
+          return; // Erfolgreich, beende die Schleife
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (response.ok) {
-        isConnected = true;
-        updateConnectionStatus(true);
-        addLog('Verbindung erfolgreich!', 'success');
-        updateAllStatus();
-      } else {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-    } catch (error) {
-      isConnected = false;
-      updateConnectionStatus(false);
-      
-      if (error.name === 'AbortError') {
-        addLog('Verbindung abgebrochen (Timeout)', 'error');
-      } else if (error.message.includes('CORS')) {
-        addLog('CORS-Fehler: ESP32 muss CORS-Header senden', 'error');
-      } else if (error.message.includes('Failed to fetch')) {
-        addLog('Verbindung fehlgeschlagen: Netzwerk oder ESP32 nicht erreichbar', 'error');
-      } else {
-        addLog(`Verbindungsfehler: ${error.message}`, 'error');
+      } catch (error) {
+        addLog(`${endpoint} fehlgeschlagen: ${error.message}`, 'warning');
+        
+        if (error.name === 'AbortError') {
+          addLog(`Timeout bei ${endpoint}`, 'error');
+        } else if (error.message.includes('CORS')) {
+          addLog('CORS-Fehler: Öffne Browser mit --disable-web-security', 'error');
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+          addLog('Netzwerkfehler: Prüfe IP-Adresse und WiFi', 'error');
+        }
       }
     }
+    
+    // Alle Tests fehlgeschlagen
+    isConnected = false;
+    updateConnectionStatus(false);
+    addLog('Alle Verbindungstests fehlgeschlagen', 'error');
+    addLog('Lösungen: 1) Browser mit --disable-web-security starten', 'info');
+    addLog('2) ESP32 neu starten 3) IP-Adresse prüfen', 'info');
   }
   
   // Verbindungsstatus aktualisieren
