@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Steuerung</title>
+<style>
+  body {
+    background: black;
+    color: #3dfc96;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+  button {
+    background-color: #1e1e1e;
+    border: none;
+    border-radius: 12px;
+    color: #3dfc96;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 1.2rem;
+    box-shadow: 0 0 5px #3dfc96;
+    cursor: pointer;
+    width: 180px;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background-color: #2a2a2a;
+  }
+  .on {
+    background-color: #30f060;
+    color: black;
+  }
+</style>
+</head>
+<body>
+
+<h1>Relais Steuerung</h1>
+
+<div id="buttons">
+  <button id="relay1" onclick="toggleRelay(1)">Relais 1: AUS</button>
+  <button id="relay2" onclick="toggleRelay(2)">Relais 2: AUS</button>
+  <button id="relay3" onclick="toggleRelay(3)">Relais 3: AUS</button>
+  <button id="relay4" onclick="toggleRelay(4)">Relais 4: AUS</button>
+</div>
+
+<script>
+  const espIP = "http://192.168.178.50";  // IP deines ESP32 anpassen
+
+  function toggleRelay(channel) {
+    const btn = document.getElementById("relay" + channel);
+    const isOn = btn.classList.contains("on");
+    const newState = isOn ? "off" : "on";
+
+    fetch(`${espIP}/relay?channel=${channel}&state=${newState}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.state === "on") {
+          btn.classList.add("on");
+          btn.textContent = `Relais ${channel}: EIN`;
+        } else {
+          btn.classList.remove("on");
+          btn.textContent = `Relais ${channel}: AUS`;
+        }
+      })
+      .catch(err => {
+        alert("Fehler bei der Kommunikation mit dem ESP32");
+        console.error(err);
+      });
+  }
+</script>
+
+</body>
+</html>
