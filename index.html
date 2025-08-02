@@ -1,34 +1,26 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ESP32 Webstatus</title>
-  <link rel="stylesheet" href="https://verflucht0815.github.io/GC2.0/style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GrowLab0815</title>
+<link rel="stylesheet" href="https://verflucht0815.github.io/GC2.0/style.css" />
 </head>
 <body>
-  <h1>🌡️ ESP32 Status</h1>
 
-  <div class="box">
-    <p>Temperatur: <span id="temp">...</span> °C</p>
-    <p>Luftfeuchtigkeit: <span id="hum">...</span> %</p>
-  </div>
+<!-- Intro Vollbild -->
+<div id="intro-screen">
+  <h1>GrowLab0815</h1>
+</div>
 
-  <button onclick="openPopup()">🔍 Mehr Details</button>
+<!-- Hauptmenü -->
+<div id="main-menu" class="hidden">
+  <a href="klima.html" class="menu-button">Klima</a>
+  <a href="bewaesserung.html" class="menu-button">Bewässerung</a>
+  <a href="lueftung.html" class="menu-button">Lüftung</a>
+  <a href="licht.html" class="menu-button">Licht</a>
+</div>
 
-  <!-- === Popup-Fenster === -->
-  <div class="popup-overlay" id="popup">
-    <div class="popup">
-      <div class="popup-header">
-        <h2>Status</h2>
-        <button class="close-popup" onclick="closePopup()">✖</button>
-      </div>
-      <p>ESP32 läuft im WLAN.</p>
-      <p>IP: <span id="esp-ip">Lade...</span></p>
-      <p>Daten werden live geladen.</p>
-    </div>
-  </div>
-
-  <script src="https://verflucht0815.github.io/GC2.0/script.js"></script>
+<script src="https://verflucht0815.github.io/GC2.0/script.js"></script>
 </body>
 </html>
