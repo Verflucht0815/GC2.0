@@ -1,84 +1,76 @@
 body {
-  background: #111;
-  color: #0f0;
-  font-family: monospace;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
+  font-family: Arial, sans-serif;
+  background-color: #1e1e1e;
+  color: #eee;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
 }
 
 .box {
-  background: #222;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #0f0;
-  margin-top: 2rem;
+  background-color: #2e2e2e;
+  padding: 15px;
+  border-radius: 12px;
+  display: inline-block;
+  box-shadow: 0 0 10px rgba(0, 255, 128, 0.2);
 }
 
 button {
-  margin-top: 2rem;
-  padding: 0.7rem 1.5rem;
+  margin-top: 20px;
+  padding: 10px 20px;
   font-size: 1rem;
-  background-color: #0f0;
-  color: #000;
+  background-color: #00c67e;
   border: none;
-  border-radius: 5px;
+  color: #fff;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-/* === Popup Styles === */
+button:hover {
+  background-color: #009e63;
+}
+
+/* === Popup === */
 .popup-overlay {
   position: fixed;
   top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 255, 0, 0.1);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
   justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-
-.popup-overlay.active {
-  opacity: 1;
-  pointer-events: all;
+  align-items: center;
+  z-index: 1000;
 }
 
 .popup {
-  background: #222;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #0f0;
-  min-width: 250px;
-  max-width: 90vw;
-  transform: scale(0.8);
-  transition: transform 0.3s ease;
-}
-
-.popup-overlay.active .popup {
-  transform: scale(1);
+  background: #2e2e2e;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .popup-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-}
-
-.popup-header h2 {
-  margin: 0;
-  color: #0f0;
 }
 
 .close-popup {
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #0f0;
-  background: none;
+  background: transparent;
   border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
