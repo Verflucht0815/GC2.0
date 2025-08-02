@@ -1,141 +1,54 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Growlab Controller</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 Webstatus</title>
+  <style>
+    body {
+      background: #111;
+      color: #0f0;
+      font-family: monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    .box {
+      background: #222;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #0f0;
+      margin-top: 2rem;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>🌱 GROWLAB</h1>
-            <div class="status-bar">
-                <div class="connection-status" id="connectionStatus">
-                    <span class="status-dot"></span>
-                    <span>ESP32 Verbindung</span>
-                </div>
-                <div class="timestamp" id="timestamp"></div>
-            </div>
-        </header>
+  <h1>🌡️ ESP32 Status</h1>
+  <div class="box">
+    <p>Temperatur: <span id="temp">...</span> °C</p>
+    <p>Luftfeuchtigkeit: <span id="hum">...</span> %</p>
+  </div>
 
-        <main class="dashboard">
-            <!-- Sensor Indikatoren -->
-            <section class="sensors-grid">
-                <div class="sensor-card temperature">
-                    <div class="sensor-icon">🌡️</div>
-                    <div class="sensor-info">
-                        <h3>Temperatur</h3>
-                        <div class="sensor-value" id="temperature">--°C</div>
-                        <div class="sensor-range">Optimal: 20-26°C</div>
-                    </div>
-                    <div class="sensor-status" id="tempStatus"></div>
-                </div>
+  <script>
+    const ESP32_IP = "http://192.168.178.33"; // <-- ERSETZEN!
+    const API_URL = ESP32_IP + "/api/status";
 
-                <div class="sensor-card humidity">
-                    <div class="sensor-icon">💧</div>
-                    <div class="sensor-info">
-                        <h3>Luftfeuchtigkeit</h3>
-                        <div class="sensor-value" id="humidity">--%</div>
-                        <div class="sensor-range">Optimal: 50-70%</div>
-                    </div>
-                    <div class="sensor-status" id="humidityStatus"></div>
-                </div>
+    async function fetchStatus() {
+      try {
+        const res = await fetch(API_URL);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        document.getElementById("temp").textContent = data.temp;
+        document.getElementById("hum").textContent = data.humidity;
+      } catch (err) {
+        console.error("Fehler beim Abrufen:", err);
+      }
+    }
 
-                <div class="sensor-card vpd">
-                    <div class="sensor-icon">📊</div>
-                    <div class="sensor-info">
-                        <h3>VPD</h3>
-                        <div class="sensor-value" id="vpd">-- kPa</div>
-                        <div class="sensor-range">Optimal: 0.8-1.2 kPa</div>
-                    </div>
-                    <div class="sensor-status" id="vpdStatus"></div>
-                </div>
-
-                <div class="sensor-card soil">
-                    <div class="sensor-icon">🌱</div>
-                    <div class="sensor-info">
-                        <h3>Bodenfeuchtigkeit</h3>
-                        <div class="sensor-value" id="soilMoisture">--%</div>
-                        <div class="sensor-range">Optimal: 60-80%</div>
-                    </div>
-                    <div class="sensor-status" id="soilStatus"></div>
-                </div>
-            </section>
-
-            <!-- Steuerungsbereich -->
-            <section class="controls-section">
-                <div class="control-card pump-control">
-                    <div class="control-header">
-                        <h3>💧 Bewässerungssteuerung</h3>
-                        <div class="pump-status" id="pumpStatus">AUS</div>
-                    </div>
-                    
-                    <div class="control-buttons">
-                        <button class="btn btn-primary" id="pumpToggle">
-                            <span class="btn-icon">🚰</span>
-                            <span class="btn-text">Pumpe Ein/Aus</span>
-                        </button>
-                        
-                        <button class="btn btn-secondary" id="pumpAuto">
-                            <span class="btn-icon">🤖</span>
-                            <span class="btn-text">Auto Modus</span>
-                        </button>
-                    </div>
-
-                    <div class="pump-settings">
-                        <div class="setting-group">
-                            <label for="pumpDuration">Bewässerungsdauer (Sekunden):</label>
-                            <input type="range" id="pumpDuration" min="5" max="60" value="10">
-                            <span id="durationValue">10s</span>
-                        </div>
-                        
-                        <div class="setting-group">
-                            <label for="soilThreshold">Bodenfeuchtigkeit Schwellwert (%):</label>
-                            <input type="range" id="soilThreshold" min="30" max="80" value="50">
-                            <span id="thresholdValue">50%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Systeminfo -->
-                <div class="control-card system-info">
-                    <h3>📡 Systeminfo</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">WiFi:</span>
-                            <span class="info-value" id="wifiStatus">FRITZ!Box 6670 VY</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">ThingSpeak:</span>
-                            <span class="info-value" id="thingspeakStatus">Channel 2999714</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Letzte Messung:</span>
-                            <span class="info-value" id="lastUpdate">--:--</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Uptime:</span>
-                            <span class="info-value" id="uptime">00:00:00</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Diagramm Bereich (Placeholder) -->
-            <section class="chart-section">
-                <div class="chart-card">
-                    <h3>📈 Sensor Verlauf (24h)</h3>
-                    <div class="chart-placeholder">
-                        <p>Diagramm wird hier angezeigt</p>
-                        <p><small>Verbindung zu ThingSpeak wird implementiert...</small></p>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <script src="config.js"></script>
-    <script src="app.js"></script>
+    fetchStatus();
+    setInterval(fetchStatus, 5000); // alle 5 Sekunden aktualisieren
+  </script>
 </body>
 </html>
+
