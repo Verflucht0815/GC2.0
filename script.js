@@ -1,34 +1,31 @@
-const ESP32_IP = "http://192.168.178.29"; // <- DEINE IP HIER
-const API_URL = ESP32_IP + "/api/status";
-
-async function fetchStatus() {
-  try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-    document.getElementById("temp").textContent = data.temp;
-    document.getElementById("hum").textContent = data.humidity;
-  } catch (err) {
-    console.error("Fehler beim Abrufen:", err);
-  }
-}
-
-fetchStatus();
-setInterval(fetchStatus, 5000);
-
-// === Popup Funktionen ===
 function openPopup() {
-  document.getElementById("popup").classList.add("active");
-  document.getElementById("esp-ip").textContent = ESP32_IP.replace("http://", "");
+  document.getElementById("popup").style.display = "flex";
 }
 
 function closePopup() {
-  document.getElementById("popup").classList.remove("active");
+  document.getElementById("popup").style.display = "none";
 }
 
-window.addEventListener("click", function (e) {
-  const popup = document.getElementById("popup");
-  if (e.target === popup) {
-    closePopup();
-  }
+// Beispiel für dynamische IP-Aktualisierung
+document.addEventListener("DOMContentLoaded", () => {
+  fetch("/ip")
+    .then(res => res.text())
+    .then(ip => {
+      document.getElementById("esp-ip").textContent = ip;
+    })
+    .catch(() => {
+      document.getElementById("esp-ip").textContent = "nicht verfügbar";
+    });
+
+  // Optional: Sensorwerte abrufen
+  fetch("/data")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("temp").textContent = data.temp;
+      document.getElementById("hum").textContent = data.hum;
+    })
+    .catch(() => {
+      document.getElementById("temp").textContent = "Fehler";
+      document.getElementById("hum").textContent = "Fehler";
+    });
 });
