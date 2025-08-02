@@ -1,31 +1,31 @@
+const ESP32_IP = "http://192.168.178.29";  // ESP32 lokale IP anpassen
+
 function openPopup() {
   document.getElementById("popup").style.display = "flex";
+  document.getElementById("esp-ip").textContent = ESP32_IP.replace("http://", "");
 }
 
 function closePopup() {
   document.getElementById("popup").style.display = "none";
 }
 
-// Beispiel für dynamische IP-Aktualisierung
-document.addEventListener("DOMContentLoaded", () => {
-  fetch("/ip")
-    .then(res => res.text())
-    .then(ip => {
-      document.getElementById("esp-ip").textContent = ip;
-    })
-    .catch(() => {
-      document.getElementById("esp-ip").textContent = "nicht verfügbar";
-    });
+async function fetchData() {
+  try {
+    const res = await fetch(ESP32_IP + "/data");
+    if (!res.ok) throw new Error("Netzwerkfehler");
+    const json = await res.json();
+    document.getElementById("temp").textContent = json.temp;
+    document.getElementById("hum").textContent = json.humidity;
+  } catch(e) {
+    console.error(e);
+    document.getElementById("temp").textContent = "-";
+    document.getElementById("hum").textContent = "-";
+  }
+}
 
-  // Optional: Sensorwerte abrufen
-  fetch("/data")
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById("temp").textContent = data.temp;
-      document.getElementById("hum").textContent = data.hum;
-    })
-    .catch(() => {
-      document.getElementById("temp").textContent = "Fehler";
-      document.getElementById("hum").textContent = "Fehler";
-    });
+fetchData();
+setInterval(fetchData, 5000);
+
+window.addEventListener("click", (e) => {
+  if (e.target.id === "popup") closePopup();
 });
