@@ -3,75 +3,445 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Steuerung</title>
+<title>Steuerung - GrowLab0815</title>
 <style>
   body {
     background-color: black;
     color: #3dfc96;
     font-family: Arial, sans-serif;
-    text-align: center;
-    padding-top: 40px;
+    padding: 20px;
+    margin: 0;
   }
-  button {
-    width: 120px;
-    margin: 10px;
-    padding: 15px;
-    border-radius: 12px;
+  
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
     background-color: #1e1e1e;
     color: #3dfc96;
     border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
     cursor: pointer;
+    text-decoration: none;
+    font-size: 1rem;
     box-shadow: 0 0 5px #3dfc96;
-    font-size: 1.1rem;
     transition: background-color 0.3s ease;
   }
-  button:hover {
+  
+  .back-button:hover {
     background-color: #2a2a2a;
   }
+  
+  .connection-status {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+  
+  .status-connected {
+    background-color: #0d4d2d;
+    color: #3dfc96;
+  }
+  
+  .status-disconnected {
+    background-color: #4d0d0d;
+    color: #ff6b6b;
+  }
+  
+  .config-section {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 5px #3dfc96;
+  }
+  
+  .config-section h3 {
+    margin-top: 0;
+    color: #3dfc96;
+  }
+  
+  .ip-input {
+    width: 200px;
+    padding: 8px;
+    background-color: #2a2a2a;
+    color: #3dfc96;
+    border: 1px solid #3dfc96;
+    border-radius: 6px;
+    margin-right: 10px;
+  }
+  
+  .relay-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .relay-card {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 5px #3dfc96;
+  }
+  
+  .relay-card h3 {
+    margin-top: 0;
+    color: #3dfc96;
+    text-align: center;
+  }
+  
+  .relay-status {
+    text-align: center;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+  
+  .status-on {
+    background-color: #0d4d2d;
+    color: #3dfc96;
+  }
+  
+  .status-off {
+    background-color: #4d2d0d;
+    color: #ffaa3d;
+  }
+  
+  .status-unknown {
+    background-color: #2a2a2a;
+    color: #888;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    background-color: #1e1e1e;
+    color: #3dfc96;
+    border: 1px solid #3dfc96;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    min-width: 80px;
+  }
+  
+  button:hover {
+    background-color: #2a2a2a;
+    box-shadow: 0 0 8px #3dfc96;
+  }
+  
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .btn-on {
+    border-color: #3dfc96;
+    color: #3dfc96;
+  }
+  
+  .btn-off {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+  }
+  
+  .btn-on:hover {
+    background-color: #0d4d2d;
+  }
+  
+  .btn-off:hover {
+    background-color: #4d0d0d;
+  }
+  
+  .logs {
+    background-color: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  
+  .log-entry {
+    margin-bottom: 5px;
+    padding: 2px 0;
+  }
+  
+  .log-success { color: #3dfc96; }
+  .log-error { color: #ff6b6b; }
+  .log-info { color: #3d96fc; }
 </style>
 </head>
 <body>
 
-<h1>Steuerung der Relais</h1>
+<a href="index.html" class="back-button">← Zurück</a>
 
-<div>
-  <button onclick="toggleRelay(1, 'on')">Relais 1 AN</button>
-  <button onclick="toggleRelay(1, 'off')">Relais 1 AUS</button>
+<div class="header">
+  <h1>Relais Steuerung</h1>
 </div>
-<div>
-  <button onclick="toggleRelay(2, 'on')">Relais 2 AN</button>
-  <button onclick="toggleRelay(2, 'off')">Relais 2 AUS</button>
+
+<div id="connection-status" class="connection-status status-disconnected">
+  Nicht verbunden
 </div>
-<div>
-  <button onclick="toggleRelay(3, 'on')">Relais 3 AN</button>
-  <button onclick="toggleRelay(3, 'off')">Relais 3 AUS</button>
+
+<div class="config-section">
+  <h3>ESP32 Konfiguration</h3>
+  <input type="text" id="esp-ip" class="ip-input" placeholder="192.168.178.29" value="192.168.178.29">
+  <button onclick="testConnection()">Verbindung testen</button>
+  <button onclick="updateAllStatus()">Status aktualisieren</button>
 </div>
-<div>
-  <button onclick="toggleRelay(4, 'on')">Relais 4 AN</button>
-  <button onclick="toggleRelay(4, 'off')">Relais 4 AUS</button>
+
+<div class="relay-grid">
+  <div class="relay-card">
+    <h3>Relais 1</h3>
+    <div id="status-1" class="relay-status status-unknown">Status unbekannt</div>
+    <div class="button-group">
+      <button class="btn-on" onclick="toggleRelay(1, 'on')">EIN</button>
+      <button class="btn-off" onclick="toggleRelay(1, 'off')">AUS</button>
+    </div>
+  </div>
+  
+  <div class="relay-card">
+    <h3>Relais 2</h3>
+    <div id="status-2" class="relay-status status-unknown">Status unbekannt</div>
+    <div class="button-group">
+      <button class="btn-on" onclick="toggleRelay(2, 'on')">EIN</button>
+      <button class="btn-off" onclick="toggleRelay(2, 'off')">AUS</button>
+    </div>
+  </div>
+  
+  <div class="relay-card">
+    <h3>Relais 3</h3>
+    <div id="status-3" class="relay-status status-unknown">Status unbekannt</div>
+    <div class="button-group">
+      <button class="btn-on" onclick="toggleRelay(3, 'on')">EIN</button>
+      <button class="btn-off" onclick="toggleRelay(3, 'off')">AUS</button>
+    </div>
+  </div>
+  
+  <div class="relay-card">
+    <h3>Relais 4</h3>
+    <div id="status-4" class="relay-status status-unknown">Status unbekannt</div>
+    <div class="button-group">
+      <button class="btn-on" onclick="toggleRelay(4, 'on')">EIN</button>
+      <button class="btn-off" onclick="toggleRelay(4, 'off')">AUS</button>
+    </div>
+  </div>
+</div>
+
+<div class="logs" id="logs">
+  <div class="log-entry log-info">System bereit...</div>
 </div>
 
 <script>
-  const espIP = "http://192.168.178.29"; // Hier deine ESP32-IP anpassen!
-
-  async function toggleRelay(channel, state) {
-    try {
-      const response = await fetch(`${espIP}/relay?channel=${channel}&state=${state}`, {
-        method: "GET",
-      });
-      if (!response.ok) {
-        alert("Fehler beim Schalten des Relais");
-        return;
-      }
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      alert("Verbindung zum ESP32 fehlgeschlagen");
-      console.error(error);
+  let espIP = "";
+  let isConnected = false;
+  
+  // Beim Laden der Seite
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedIP = localStorage.getItem('esp32-ip');
+    if (savedIP) {
+      document.getElementById('esp-ip').value = savedIP;
+      espIP = `http://${savedIP}`;
+    }
+    testConnection();
+  });
+  
+  // Log-Funktion
+  function addLog(message, type = 'info') {
+    const logs = document.getElementById('logs');
+    const logEntry = document.createElement('div');
+    logEntry.className = `log-entry log-${type}`;
+    logEntry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+    logs.appendChild(logEntry);
+    logs.scrollTop = logs.scrollHeight;
+    
+    // Nur die letzten 20 Einträge behalten
+    while (logs.children.length > 20) {
+      logs.removeChild(logs.firstChild);
     }
   }
+  
+  // Verbindung testen
+  async function testConnection() {
+    const ipInput = document.getElementById('esp-ip').value.trim();
+    if (!ipInput) {
+      addLog('Bitte geben Sie eine IP-Adresse ein', 'error');
+      return;
+    }
+    
+    espIP = `http://${ipInput}`;
+    localStorage.setItem('esp32-ip', ipInput);
+    
+    addLog(`Teste Verbindung zu ${espIP}...`, 'info');
+    
+    try {
+      // Ersten Test mit einem einfachen GET-Request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(`${espIP}/status`, {
+        method: 'GET',
+        signal: controller.signal,
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        isConnected = true;
+        updateConnectionStatus(true);
+        addLog('Verbindung erfolgreich!', 'success');
+        updateAllStatus();
+      } else {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      isConnected = false;
+      updateConnectionStatus(false);
+      
+      if (error.name === 'AbortError') {
+        addLog('Verbindung abgebrochen (Timeout)', 'error');
+      } else if (error.message.includes('CORS')) {
+        addLog('CORS-Fehler: ESP32 muss CORS-Header senden', 'error');
+      } else if (error.message.includes('Failed to fetch')) {
+        addLog('Verbindung fehlgeschlagen: Netzwerk oder ESP32 nicht erreichbar', 'error');
+      } else {
+        addLog(`Verbindungsfehler: ${error.message}`, 'error');
+      }
+    }
+  }
+  
+  // Verbindungsstatus aktualisieren
+  function updateConnectionStatus(connected) {
+    const statusDiv = document.getElementById('connection-status');
+    if (connected) {
+      statusDiv.textContent = `Verbunden mit ${espIP}`;
+      statusDiv.className = 'connection-status status-connected';
+    } else {
+      statusDiv.textContent = 'Nicht verbunden';
+      statusDiv.className = 'connection-status status-disconnected';
+    }
+  }
+  
+  // Relais schalten
+  async function toggleRelay(channel, state) {
+    if (!isConnected) {
+      addLog('Keine Verbindung zum ESP32', 'error');
+      await testConnection();
+      if (!isConnected) return;
+    }
+    
+    addLog(`Schalte Relais ${channel} ${state.toUpperCase()}...`, 'info');
+    
+    // Buttons während der Anfrage deaktivieren
+    const buttons = document.querySelectorAll(`button`);
+    buttons.forEach(btn => btn.disabled = true);
+    
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
+      const response = await fetch(`${espIP}/relay?channel=${channel}&state=${state}`, {
+        method: "GET",
+        signal: controller.signal,
+        mode: 'cors',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      addLog(`Relais ${channel} erfolgreich ${state.toUpperCase()} geschaltet`, 'success');
+      
+      // Status aktualisieren
+      updateRelayStatus(channel, state === 'on');
+      
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        addLog(`Timeout beim Schalten von Relais ${channel}`, 'error');
+      } else {
+        addLog(`Fehler beim Schalten von Relais ${channel}: ${error.message}`, 'error');
+      }
+    } finally {
+      // Buttons wieder aktivieren
+      buttons.forEach(btn => btn.disabled = false);
+    }
+  }
+  
+  // Relais-Status aktualisieren
+  function updateRelayStatus(channel, isOn) {
+    const statusDiv = document.getElementById(`status-${channel}`);
+    if (isOn) {
+      statusDiv.textContent = 'EIN';
+      statusDiv.className = 'relay-status status-on';
+    } else {
+      statusDiv.textContent = 'AUS';
+      statusDiv.className = 'relay-status status-off';
+    }
+  }
+  
+  // Alle Status aktualisieren
+  async function updateAllStatus() {
+    if (!isConnected) {
+      addLog('Keine Verbindung für Status-Update', 'error');
+      return;
+    }
+    
+    addLog('Aktualisiere alle Relais-Status...', 'info');
+    
+    try {
+      const response = await fetch(`${espIP}/status`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Annahme: ESP32 sendet Status in Format { relay1: true, relay2: false, ... }
+        for (let i = 1; i <= 4; i++) {
+          const relayKey = `relay${i}`;
+          if (data.hasOwnProperty(relayKey)) {
+            updateRelayStatus(i, data[relayKey]);
+          }
+        }
+        addLog('Status aktualisiert', 'success');
+      }
+    } catch (error) {
+      addLog(`Status-Update fehlgeschlagen: ${error.message}`, 'error');
+    }
+  }
+  
+  // Automatisches Status-Update alle 30 Sekunden
+  setInterval(() => {
+    if (isConnected) {
+      updateAllStatus();
+    }
+  }, 30000);
 </script>
 
 </body>
 </html>
-
