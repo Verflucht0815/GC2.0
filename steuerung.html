@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Steuerung - GrowLab0815</title>
+<!-- Mixed Content erlauben für lokale Entwicklung -->
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <style>
   body {
     background-color: black;
@@ -279,6 +281,20 @@
     }
   }
   
+  // Mixed Content Warning anzeigen
+  function checkMixedContent() {
+    if (location.protocol === 'https:' && espIP.startsWith('http:')) {
+      addLog('⚠️ MIXED CONTENT PROBLEM erkannt!', 'error');
+      addLog('HTTPS-Seite kann nicht auf HTTP ESP32 zugreifen', 'error');
+      addLog('Lösungen:', 'info');
+      addLog('1) Seite über HTTP öffnen: http://localhost:8080', 'info');
+      addLog('2) Browser mit --disable-web-security starten', 'info');
+      addLog('3) ESP32 über HTTPS erreichen (schwierig)', 'info');
+      return true;
+    }
+    return false;
+  }
+  
   // Verbindung testen
   async function testConnection() {
     const ipInput = document.getElementById('esp-ip').value.trim();
@@ -290,7 +306,14 @@
     espIP = `http://${ipInput}`;
     localStorage.setItem('esp32-ip', ipInput);
     
+    // Mixed Content Check
+    if (checkMixedContent()) {
+      updateConnectionStatus(false);
+      return;
+    }
+    
     addLog(`Teste Verbindung zu ${espIP}...`, 'info');
+    addLog(`Aktuelles Protokoll: ${location.protocol}`, 'info');
     
     // Mehrere Verbindungstests durchführen
     const testEndpoints = ['/test', '/status', '/'];
@@ -318,7 +341,7 @@
         if (response.ok) {
           isConnected = true;
           updateConnectionStatus(true);
-          addLog(`Verbindung erfolgreich über ${endpoint}!`, 'success');
+          addLog(`✅ Verbindung erfolgreich über ${endpoint}!`, 'success');
           
           // Response Details loggen
           const contentType = response.headers.get('content-type');
@@ -341,6 +364,8 @@
           addLog('CORS-Fehler: Öffne Browser mit --disable-web-security', 'error');
         } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
           addLog('Netzwerkfehler: Prüfe IP-Adresse und WiFi', 'error');
+        } else if (error.message.includes('Mixed Content')) {
+          addLog('Mixed Content blockiert - siehe oben für Lösungen', 'error');
         }
       }
     }
@@ -348,9 +373,18 @@
     // Alle Tests fehlgeschlagen
     isConnected = false;
     updateConnectionStatus(false);
-    addLog('Alle Verbindungstests fehlgeschlagen', 'error');
-    addLog('Lösungen: 1) Browser mit --disable-web-security starten', 'info');
-    addLog('2) ESP32 neu starten 3) IP-Adresse prüfen', 'info');
+    addLog('❌ Alle Verbindungstests fehlgeschlagen', 'error');
+    
+    if (location.protocol === 'https:') {
+      addLog('🔧 MIXED CONTENT LÖSUNG:', 'info');
+      addLog('Starte lokalen Server: python -m http.server 8080', 'info');
+      addLog('Dann öffne: http://localhost:8080', 'info');
+    } else {
+      addLog('🔧 Andere Lösungen:', 'info');
+      addLog('1) ESP32 neu starten', 'info');
+      addLog('2) IP-Adresse in Router prüfen', 'info');
+      addLog('3) Firewall/Antivirus prüfen', 'info');
+    }
   }
   
   // Verbindungsstatus aktualisieren
