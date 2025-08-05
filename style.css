@@ -1,7 +1,35 @@
 body {
-  font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
 }
-
-#sensor-data p {
-  margin: 0.5rem 0;
+.card {
+    background: white;
+    padding: 20px;
+    margin: 10px auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-width: 600px;
+}
+.btn {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+#log {
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
 }
