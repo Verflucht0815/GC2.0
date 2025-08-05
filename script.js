@@ -1,48 +1,41 @@
-async function fetchSensorData() {
-  try {
-    // Ersetze <öffentliche-IP> durch die öffentliche IP deines Routers
-    const response = await fetch('http://192.168.178.29/sensor');
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching sensor data:', error);
-    return null;
-  }
+const esp32Url = "http://192.168.178.29"; // Ersetze mit der tatsächlichen IP-Adresse des ESP32
+
+function addLog(message) {
+    const log = document.getElementById("log");
+    const entry = document.createElement("p");
+    entry.textContent = "[" + new Date().toLocaleTimeString() + "] " + message;
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
 }
 
-function updateUI(data) {
-  const tempElement = document.getElementById('temperature');
-  const humElement = document.getElementById('humidity');
-  const errorElement = document.getElementById('error');
-  const lastUpdatedElement = document.getElementById('last-updated');
-
-  if (data && data.temperature !== undefined && data.humidity !== undefined) {
-    tempElement.textContent = `Temperature: ${data.temperature.toFixed(1)} °C`;
-    humElement.textContent = `Humidity: ${data.humidity.toFixed(1)} %`;
-    errorElement.classList.add('hidden');
-    lastUpdatedElement.textContent = new Date().toLocaleTimeString();
-  } else {
-    tempElement.textContent = 'Temperature: -- °C';
-    humElement.textContent = 'Humidity: -- %';
-    errorElement.classList.remove('hidden');
-    lastUpdatedElement.textContent = '--';
-  }
+function updateSensors() {
+    fetch(`${esp32Url}/sensor`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP-Fehler: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById("temperature").textContent = data.temperature.toFixed(1);
+            document.getElementById("humidity").textContent = data.humidity.toFixed(1);
+            addLog(`Sensorwerte aktualisiert: ${data.temperature.toFixed(1)}°C, ${data.humidity.toFixed(1)}%`);
+        })
+        .catch(error => {
+            addLog(`Fehler beim Abrufen der Sensorwerte: ${error}`);
+        });
 }
 
-async function startDataPolling() {
-  // Initialer Abruf
-  const initialData = await fetchSensorData();
-  updateUI(initialData);
-
-  // Regelmäßige Aktualisierung alle 5 Sekunden
-  setInterval(async () => {
-    const data = await fetchSensorData();
-    updateUI(data);
-  }, 5000);
+function triggerGitHubUpdate() {
+    addLog("GitHub Update wird ausgelöst...");
+    // Hinweis: Die GitHub-Logik läuft auf dem ESP32
 }
 
-// Starte das Polling nach dem Laden der Seite
-window.onload = startDataPolling;
+function refreshSensors() {
+    updateSensors();
+}
+
+window.onload = function() {
+    updateSensors();
+    setInterval(updateSensors, 60000); // Alle 60 Sekunden aktualisieren
+};
