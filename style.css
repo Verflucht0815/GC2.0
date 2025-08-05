@@ -1,0 +1,7 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+#sensor-data p {
+  margin: 0.5rem 0;
+}
