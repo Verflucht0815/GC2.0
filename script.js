@@ -1,4 +1,4 @@
-const esp32IP = "http://DEINE_ESP32_IP"; // Ersetze mit der IP-Adresse des ESP32
+const esp32IP = "http://192.168.178.29/"; // Ersetze mit der IP-Adresse des ESP32
 
 async function toggleRelay(state) {
   try {
