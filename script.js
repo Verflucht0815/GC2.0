@@ -1,6 +1,6 @@
 async function fetchSensorData() {
   try {
-    // Ersetze <ESP32-IP> durch die tatsächliche IP-Adresse deines ESP32
+    // Ersetze <öffentliche-IP> durch die öffentliche IP deines Routers
     const response = await fetch('http://192.168.178.29/sensor');
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
