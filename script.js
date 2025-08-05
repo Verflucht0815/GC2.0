@@ -1,7 +1,7 @@
 async function fetchSensorData() {
   try {
-    // Annahme: ESP32-Webserver ist unter der gleichen Adresse erreichbar
-    const response = await fetch('/sensor');
+    // Ersetze <ESP32-IP> durch die tatsächliche IP-Adresse deines ESP32
+    const response = await fetch('http://192.168.178.29/sensor');
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
